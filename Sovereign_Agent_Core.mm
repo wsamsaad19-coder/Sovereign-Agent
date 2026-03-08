@@ -1,16 +1,8 @@
-/**
- * ==============================================================================
- * Project: Sovereign Cloud Agent (Strict Mode)
- * Architect: Eng. Wissam Al-Safi (Basra/Nasiriyah)
- * ==============================================================================
- */
-
 #import <UIKit/UIKit.h>
 #import <mach-o/dyld.h>
 #import <mach/mach.h>
 #import <Foundation/Foundation.h>
 
-// إحداثيات مركز القيادة (رابط الجنرال وسام)
 #define SERVER_API @"http://files.free.nf/wsam_core/dashboard_v50.php?api=true"
 
 @interface SovereignCloudUI : UIView
@@ -20,38 +12,33 @@
 @end
 
 @implementation SovereignCloudUI
-
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
-        [self setupTacticalUI];
+        self.backgroundColor = [[UIColor colorWithRed:0.05 green:0.08 blue:0.12 alpha:0.9] colorWithAlphaComponent:0.9];
+        self.layer.cornerRadius = 12;
+        self.layer.borderColor = [UIColor cyanColor].CGColor;
+        self.layer.borderWidth = 1.0;
+        self.clipsToBounds = YES;
+
+        self.titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 5, 140, 15)];
+        self.titleLabel.text = @"Sovereign Core v50k";
+        self.titleLabel.textColor = [UIColor whiteColor];
+        self.titleLabel.font = [UIFont boldSystemFontOfSize:10];
+        [self addSubview:self.titleLabel];
+
+        self.actionLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 25, 160, 20)];
+        self.actionLabel.font = [UIFont boldSystemFontOfSize:11];
+        [self addSubview:self.actionLabel];
+
+        self.lampIndicator = [[UIView alloc] initWithFrame:CGRectMake(self.frame.size.width - 20, 27, 10, 10)];
+        self.lampIndicator.layer.cornerRadius = 5;
+        [self addSubview:self.lampIndicator];
+
+        [self changeSystemState:[UIColor yellowColor] text:@"جاري الاتصال بالسيرفر..."];
         [self initiateCloudUplink];
     }
     return self;
-}
-
-- (void)setupTacticalUI {
-    self.backgroundColor = [[UIColor colorWithRed:0.05 green:0.08 blue:0.12 alpha:0.9] colorWithAlphaComponent:0.9];
-    self.layer.cornerRadius = 12;
-    self.layer.borderColor = [UIColor cyanColor].CGColor;
-    self.layer.borderWidth = 1.0;
-    self.clipsToBounds = YES;
-
-    self.titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 5, 140, 15)];
-    self.titleLabel.text = @"Sovereign Core v50k";
-    self.titleLabel.textColor = [UIColor whiteColor];
-    self.titleLabel.font = [UIFont boldSystemFontOfSize:10];
-    [self addSubview:self.titleLabel];
-
-    self.actionLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 25, 160, 20)];
-    self.actionLabel.font = [UIFont boldSystemFontOfSize:11];
-    [self addSubview:self.actionLabel];
-
-    self.lampIndicator = [[UIView alloc] initWithFrame:CGRectMake(self.frame.size.width - 20, 27, 10, 10)];
-    self.lampIndicator.layer.cornerRadius = 5;
-    [self addSubview:self.lampIndicator];
-
-    [self changeSystemState:[UIColor yellowColor] text:@"جاري الاتصال بالسيرفر..."];
 }
 
 - (void)changeSystemState:(UIColor *)color text:(NSString *)text {
@@ -73,13 +60,11 @@
         NSURL *url = [NSURL URLWithString:SERVER_API];
         NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:url];
         req.timeoutInterval = 10.0;
-        
         [[[NSURLSession sharedSession] dataTaskWithRequest:req completionHandler:^(NSData *data, NSURLResponse *res, NSError *err) {
             if (err || !data) {
                 [self changeSystemState:[UIColor redColor] text:@"فشل الاتصال بالقيادة!"];
                 return;
             }
-
             NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
             if (!json) return;
 
@@ -117,14 +102,12 @@
         UIView *lockdownView = [[UIView alloc] initWithFrame:win.bounds];
         lockdownView.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.95];
         lockdownView.userInteractionEnabled = YES; 
-        
         UILabel *title = [[UILabel alloc] initWithFrame:CGRectMake(0, win.bounds.size.height/2 - 60, win.bounds.size.width, 40)];
         title.text = @"🛑 النظام تحت الصيانة 🛑";
         title.textColor = [UIColor orangeColor];
         title.font = [UIFont boldSystemFontOfSize:24];
         title.textAlignment = NSTextAlignmentCenter;
         [lockdownView addSubview:title];
-        
         UILabel *message = [[UILabel alloc] initWithFrame:CGRectMake(20, win.bounds.size.height/2, win.bounds.size.width - 40, 80)];
         message.text = msg;
         message.textColor = [UIColor whiteColor];
@@ -132,7 +115,6 @@
         message.numberOfLines = 0;
         message.textAlignment = NSTextAlignmentCenter;
         [lockdownView addSubview:message];
-        
         [win addSubview:lockdownView];
     });
 }
@@ -141,7 +123,6 @@
     if (!offsets || offsets.count == 0) return;
     uintptr_t aslr_slide = _dyld_get_image_vmaddr_slide(0); 
     mach_port_t task = mach_task_self();
-    
     for (NSDictionary *off in offsets) {
         NSString *name = off[@"name"];
         uintptr_t address = strtoull([off[@"address"] UTF8String], NULL, 16);
