@@ -1,4 +1,4 @@
-name: Sovereign-Auto-Hunter-Forge
+name: Wsam-Forge
 on: [push, workflow_dispatch]
 jobs:
   build:
@@ -7,32 +7,19 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Auto-Detect and Compile (رادار صيد الملفات)
+      - name: Compile Dylib
         run: |
-          echo "🔥 بدء تشغيل مفاعل البصرة ذاتي التوجيه..."
-          
-          # [الرادار]: البحث عن أي ملف ينتهي بـ .mm في المستودع مهما كان اسمه
-          TARGET_FILE=$(find . -maxdepth 1 -name "*.mm" | head -n 1)
-          
-          if [ -z "$TARGET_FILE" ]; then
-            echo "❌ خطأ كارثي: لم أجد أي ملف ينتهي بصيغة .mm في واجهة المستودع!"
-            echo "تأكد أنك قمت بإنشاء ملف الكود وأنه ينتهي بـ .mm"
-            exit 1
-          fi
-          
-          echo "✅ تم رصد النخاع بنجاح: $TARGET_FILE"
-          
-          # تجهيز بيئة آبل الرسمية
-          sudo xcode-select -s /Applications/Xcode.app
+          echo "🔥 بدء الصهر..."
           export SDK_PATH=$(xcrun --sdk iphoneos --show-sdk-path)
           
-          # أمر الصهر الذي يهاجم الملف الذي وجده الرادار
-          clang -dynamiclib -arch arm64 "$TARGET_FILE" -o wsam_soldier.dylib -isysroot $SDK_PATH -framework Foundation -framework UIKit -framework CoreGraphics -framework QuartzCore -fobjc-arc
+          # تغيير اسم أي ملف mm موجود إلى wsam.mm لتجنب أخطاء الأسماء
+          mv *.mm wsam.mm
           
-          echo "✅ تمت عملية الصهر بنجاح تام!"
+          clang -dynamiclib -arch arm64 wsam.mm -o Wsam_Weapon.dylib -isysroot $SDK_PATH -framework Foundation -framework UIKit -framework CoreGraphics -framework QuartzCore -fobjc-arc
+          echo "✅ تم الصهر بنجاح!"
 
-      - name: Upload Sovereign Artifact
+      - name: Upload Dylib
         uses: actions/upload-artifact@v4
         with:
-          name: Wsam-Sovereign-Dylib
-          path: wsam_soldier.dylib
+          name: Wsam-Dylib
+          path: Wsam_Weapon.dylib
